@@ -7,7 +7,7 @@ describe('addTextObject', () => {
         const presentation = createPresentation('Моя презентация');
         expect(presentation.slides[0].objects.length).toBe(0);
         const addedTextObject = addTextObject(presentation.slides[0], 
-            `Пепе шнеле`
+            `текст`
             , 10, 20, 200, 100, 'Arial', 16, 'black');
         const textObject = addedTextObject.objects[0];
         expect(addedTextObject.objects).toHaveLength(1);

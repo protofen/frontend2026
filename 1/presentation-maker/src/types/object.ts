@@ -1,4 +1,3 @@
-//Создать типы данных TextObject и ImageObject
 type TextObject = {
     id: string;
     type: 'text';

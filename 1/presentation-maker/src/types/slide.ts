@@ -1,5 +1,4 @@
 import type { SlideObject } from "./object";
-//Создать Union типы данных Background и SlideObject
 
 type Background = 
     { type: 'none'} 
