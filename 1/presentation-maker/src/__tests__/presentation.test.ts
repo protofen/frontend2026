@@ -1,41 +1,41 @@
 import { describe, it, expect } from 'vitest';
-import {
-  createPresentation,
-  updatePresentationName,
-  savePresentation,
-  loadPresentation,
-} from '../functions/presentation.js';
-import { addSlide } from '../functions/slide.js';
+import { createPresentation, loadPresentation, savePresentation, 
+    updatePresentationName, addSlide } from '../index.js';
 
-describe('Presentation Functions', () => {
-  it('createPresentation: создает презентацию с правильными значениями по умолчанию', () => {
-    const presentation = createPresentation('My Presentation');
-    expect(presentation.name).toBe('My Presentation');
-    expect(presentation.slides.length).toBe(1);
-    expect(presentation.activeSlideId).toBe(presentation.slides[0].id);
-  });
+describe('createPresentation', () => {
+    it('Должен создавать презентацию со слайдом по умолчанию', () => {
+        const presentation = createPresentation('Моя презентация');
+        expect(presentation.name).toBe('Моя презентация');
+        expect(presentation.slides.length).toBe(1);
+    });
+});
 
-  it('updatePresentationName: изменяет название иммутабельно', () => {
-    const p = createPresentation('Old Name');
-    const newP = updatePresentationName(p, 'New Name');
-    expect(p.name).toBe('Old Name');
-    expect(newP.name).toBe('New Name');
-    expect(p).not.toBe(newP);
-  });
+describe('updatePresentationName', () => {
+    it('Должен обновлять имя презентации', () => {
+        const presentation = createPresentation('Моя презентация');
+        expect(presentation.name).toBe('Моя презентация');
+        const updatedPresentation = updatePresentationName(presentation, 'Обновленная презентация');
+        expect(updatedPresentation.name).toBe('Обновленная презентация');
+    });
+});
 
-  it('savePresentation / loadPresentation: корректная сериализация и десериализация', () => {
-    const p = createPresentation('Serialize Test');
-    const json = savePresentation(p);
-    const loaded = loadPresentation(json);
-    expect(loaded.name).toBe('Serialize Test');
-    expect(loaded.slides.length).toBe(1);
-  });
+describe('savePresentation/loadPresentation', () => {
+    it('Должен сохранять и загружать презентацию правильно', () => {
+        const presentation = createPresentation('Моя презентация');
+        const savedPresentation = savePresentation(presentation);
+        const loadedPresentation = loadPresentation(savedPresentation);
+        expect(loadedPresentation).toEqual(presentation);
+    });
+});
 
-  it('addSlide: добавляет слайд, активный слайд остается первым', () => {
-    const p = createPresentation('Test');
-    const newP = addSlide(p, 'Slide 2');
-    expect(newP.slides.length).toBe(2);
-    expect(newP.activeSlideId).toBe(p.slides[0].id);
-    expect(p.slides.length).toBe(1); // Иммутабельность
-  });
+describe('addSlide', () => {
+    it('Должен добавлять новый слайд в презентацию', () => {
+        const presentation = createPresentation('Моя презентация');
+        const firstSlideId = presentation.slides[0].id;
+        const updatedPresentation = addSlide(presentation);
+        expect(presentation.slides).toHaveLength(1);
+        expect(updatedPresentation.slides).toHaveLength(2);
+        expect(updatedPresentation.slides[1]).toBeDefined();
+        expect(updatedPresentation.activeSlideId).toBe(firstSlideId);
+    });
 });

@@ -1,91 +1,126 @@
 import { describe, it, expect } from 'vitest';
-import { createPresentation } from '../functions/presentation.js';
-import {
-  addSlide,
-  removeSlides,
-  moveSlide,
-  setActiveSlide,
-  duplicateSlide,
-  setSlideBackgroundColor,
-  setSlideBackgroundImage,
-  setSlideBackgroundGradient,
-  clearSlideBackground,
-} from '../functions/slide.js';
+import { createPresentation, addSlide, removeSlides, moveSlide, 
+    setSlideBackgroundColor, clearSlideBackground, setActiveSlide, duplicateSlide, setSlideBackgroundImage, setSlideBackgroundGradient, 
+    generateId} from '../index.js';
 
-describe('Slide Functions', () => {
-  it('removeSlides: удаляет один и несколько слайдов иммутабельно', () => {
-    let p = createPresentation('Test');
-    p = addSlide(p, 'Slide 2');
-    p = addSlide(p, 'Slide 3');
-    const idToRemove = p.slides[1].id;
+describe('removeSlides', () => {
+    it('Должен удалять слайды с указанными id из презентации', () => {
+        const presentation = createPresentation('Моя презентация');
+        const withSecondSlide = addSlide(presentation);
+        const withThirdSlide = addSlide(withSecondSlide);
+        const withForthSlide = addSlide(withThirdSlide);
+        expect(withForthSlide.slides.length).toBe(4);
+        const slideIdsToRemove = [withForthSlide.slides[1].id, withForthSlide.slides[3].id,];
+        const pluralDeletedSlides = removeSlides(withForthSlide, slideIdsToRemove);
+        expect(pluralDeletedSlides.slides.length).toBe(2);
+        const singleDeletedSlide = removeSlides(pluralDeletedSlides, [pluralDeletedSlides.slides[0].id]);
+        expect(singleDeletedSlide.slides.length).toBe(1);
+    });
+});
 
-    const newP = removeSlides(p, [idToRemove]);
-    expect(newP.slides.length).toBe(2);
-    expect(newP.slides.find((s) => s.id === idToRemove)).toBeUndefined();
-    expect(p.slides.length).toBe(3);
-  });
+describe('moveSlide', () => {
+    it('Должен перемещать слайд в новый индекс в презентации', () => {
+        const presentation = createPresentation('Моя презентация');
+        const withSecondSlide = addSlide(presentation);
+        const withThirdSlide = addSlide(withSecondSlide);
+        const withForthSlide = addSlide(withThirdSlide);
+        const withFifthSlide = addSlide(withForthSlide);
+        expect(withFifthSlide.slides.length).toBe(5);
+        const fifthSlideId = withFifthSlide.slides[4].id;
+        const moveToBeginning = moveSlide(withFifthSlide, fifthSlideId, 0);
+        expect(moveToBeginning.slides[0].id).toBe(fifthSlideId);
+        const moveToEnd = moveSlide(withFifthSlide, fifthSlideId, 4);
+        expect(moveToEnd.slides[4].id).toBe(fifthSlideId);
+        const moveToMiddle = moveSlide(withFifthSlide, fifthSlideId, 2);
+        expect(moveToMiddle.slides[2].id).toBe(fifthSlideId);
+    });
+});
 
-  it('moveSlide: перемещает слайд в начало, середину и конец', () => {
-    let p = createPresentation('Test');
-    p = addSlide(p, 'Slide 2');
-    p = addSlide(p, 'Slide 3');
-    const slide3Id = p.slides[2].id;
+describe('setSlideBackgroundColor', () => {
+    it('Должен устанавливать цвет фона слайда', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slide = presentation.slides[0];
+        expect(slide.background).toEqual({ type: 'none' });
+        const updatedSlide = setSlideBackgroundColor(slide, 'blue');
+        expect(updatedSlide.background).toEqual({
+            type: 'color',
+            color: 'blue',
+        });
+    });
+});
 
-    let pMoved = moveSlide(p, slide3Id, 0);
-    expect(pMoved.slides[0].id).toBe(slide3Id);
+describe('setSlideBackgroundImage', () => {
+    it('Должен устанавливать изображение фона слайда', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slide = presentation.slides[0];
+        const imagePath = '../../../versions.png';
+        expect(slide.background).toEqual({ type: 'none' });
+        const updatedSlide = setSlideBackgroundImage(slide, imagePath);
+        expect(updatedSlide.background).toEqual({
+            type: 'image',
+            imageUrl: imagePath,
+        });
+    });
+});
 
-    pMoved = moveSlide(p, slide3Id, 2);
-    expect(pMoved.slides[2].id).toBe(slide3Id);
-    
-    expect(p.slides[2].id).toBe(slide3Id); // Иммутабельность
-  });
+describe('setSlideBackgroundGradient', () => {
+    it('Должен устанавливать градиент фона слайда', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slide = presentation.slides[0];
+        expect(slide.background).toEqual({ type: 'none' });
+        const updatedSlide = setSlideBackgroundGradient(slide, ['red', 'blue']);
+        expect(updatedSlide.background).toEqual({
+            type: 'gradient',
+            colors: ['red', 'blue'],
+        });
+    });
+});
 
-  it('setActiveSlide: выбирает активный слайд иммутабельно', () => {
-    let p = createPresentation('Test');
-    p = addSlide(p, 'Slide 2');
-    const newActiveId = p.slides[1].id;
-    
-    const newP = setActiveSlide(p, newActiveId);
-    expect(newP.activeSlideId).toBe(newActiveId);
-    expect(p.activeSlideId).toBe(p.slides[0].id);
-  });
+describe('clearSlideBackground', () => {
+    it('Должен очищать цвет фона слайда', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slide = presentation.slides[0];
+        const updatedSlide = setSlideBackgroundColor(slide, 'blue');
+        expect(updatedSlide.background).toEqual({
+            type: 'color',
+            color: 'blue',
+        });
+        const finalSlide = clearSlideBackground(updatedSlide);
+        expect(finalSlide.background).toEqual({ type: 'none' });
+        expect(updatedSlide.background).toEqual({
+            type: 'color',
+            color: 'blue',
+        });
+    });
+});
 
-  it('duplicateSlide: дублирует слайд и его объекты с новыми ID', () => {
-    let p = createPresentation('Test');
-    // Используем addSlide для простоты, но проверяем дублирование
-    const originalSlideId = p.slides[0].id;
-    
-    const newP = duplicateSlide(p, originalSlideId);
-    expect(newP.slides.length).toBe(2);
-    expect(newP.slides[1].name).toBe('Слайд 1 (копия)');
-    expect(newP.slides[1].id).not.toBe(originalSlideId);
-    expect(p.slides.length).toBe(1);
-  });
+describe('SetActiveSlide', () => {
+    it('Должен переключать активный слайд в презентации', () => {
+        const presentation = createPresentation('Моя презентация');
+        const withSecondSlide = addSlide(presentation);
+        const withThirdSlide = addSlide(withSecondSlide);
+        expect(withThirdSlide.activeSlideId).toBe(withThirdSlide.slides[0].id);
+        const updatedPresentation = setActiveSlide(withThirdSlide, withThirdSlide.slides[2].id);
+        expect(updatedPresentation.activeSlideId).toBe(withThirdSlide.slides[2].id);
+    });
+});
 
-  it('setSlideBackgroundColor: устанавливает цвет фона иммутабельно', () => {
-    const p = createPresentation('Test');
-    const slide = p.slides[0];
-    const newSlide = setSlideBackgroundColor(slide, '#ff0000');
-    expect(newSlide.background).toEqual({ type: 'color', color: '#ff0000' });
-    expect(slide.background.type).toBe('none');
-  });
+describe('DuplicateSlide', () => {
+    it('Должен дублировать слайд в презентации', () => {
+        const presentation = createPresentation('Моя презентация');
+        const withSecondSlide = addSlide(presentation);
+        const secondSlideId = withSecondSlide.slides[1].id;
+        const duplicatedPresentation = duplicateSlide(withSecondSlide, secondSlideId);
+        expect(duplicatedPresentation.slides.length).toBe(3);
+        expect(duplicatedPresentation.slides[1].id).toBe(secondSlideId);
+        expect(duplicatedPresentation.slides[2].id).not.toBe(secondSlideId);
+    });
+});
 
-  it('setSlideBackgroundImage: устанавливает изображение фона', () => {
-    const p = createPresentation('Test');
-    const newSlide = setSlideBackgroundImage(p.slides[0], 'bg.png');
-    expect(newSlide.background).toEqual({ type: 'image', imageUrl: 'bg.png' });
-  });
-
-  it('setSlideBackgroundGradient: устанавливает градиент фона', () => {
-    const p = createPresentation('Test');
-    const newSlide = setSlideBackgroundGradient(p.slides[0], ['#fff', '#000'], 45);
-    expect(newSlide.background).toEqual({ type: 'gradient', colors: ['#fff', '#000'], angle: 45 });
-  });
-
-  it('clearSlideBackground: сбрасывает фон до none', () => {
-    const p = createPresentation('Test');
-    let slide = setSlideBackgroundColor(p.slides[0], '#00ff00');
-    slide = clearSlideBackground(slide);
-    expect(slide.background).toEqual({ type: 'none' });
-  });
+describe('GenerateId', () => {
+    it('Должен генерировать уникальный идентификатор', () => {
+        const id1 = generateId();
+        const id2 = generateId();
+        expect(id1).not.toBe(id2);
+    });
 });

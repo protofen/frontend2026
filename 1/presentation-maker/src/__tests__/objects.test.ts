@@ -1,78 +1,96 @@
 import { describe, it, expect } from 'vitest';
-import { createPresentation } from '../functions/presentation.js';
-import {
-  addTextObject,
-  addImageObject,
-  removeObject,
-  moveObject,
-  resizeObject,
-  updateTextObjectStyle,
-} from '../functions/objects.js';
+import { createPresentation, addTextObject, addImageObject, moveObject, 
+    resizeObject, updateTextObjectStyle, removeObject} from '../index.js';
 
-describe('Object Functions', () => {
-  it('addTextObject: добавляет текстовый объект иммутабельно', () => {
-    const p = createPresentation('Test');
-    const slide = p.slides[0];
-    const newSlide = addTextObject(slide, 'Hello', 10, 10, 100, 50, 'Arial', 16, '#000000');
-    
-    expect(newSlide.objects.length).toBe(1);
-    expect(newSlide.objects[0].type).toBe('text');
-    expect(slide.objects.length).toBe(0);
-  });
+describe('addTextObject', () => {
+    it('Должен добавлять текстовый объект на слайд', () => {
+        const presentation = createPresentation('Моя презентация');
+        expect(presentation.slides[0].objects.length).toBe(0);
+        const addedTextObject = addTextObject(presentation.slides[0], 
+            `Пепе шнеле`
+            , 10, 20, 200, 100, 'Arial', 16, 'black');
+        const textObject = addedTextObject.objects[0];
+        expect(addedTextObject.objects).toHaveLength(1);
+        expect(presentation.slides[0].objects).toHaveLength(0);
+        expect(textObject).toBeDefined();
+        expect(textObject.type).toBe('text');
+    });
+});
 
-  it('addImageObject: добавляет изображение иммутабельно', () => {
-    const p = createPresentation('Test');
-    const slide = p.slides[0];
-    const newSlide = addImageObject(slide, 'img.png', 0, 0, 200, 200);
-    
-    expect(newSlide.objects.length).toBe(1);
-    expect(newSlide.objects[0].type).toBe('image');
-    expect(slide.objects.length).toBe(0);
-  });
+describe('addImageObject', () => {
+    it('Должен добавлять изображение на слайд', () => {
+        const presentation = createPresentation('Моя презентация');
+        expect(presentation.slides[0].objects.length).toBe(0);
+        const addedImageObject = addImageObject(presentation.slides[0], 
+            '../../../versions.png', 10, 20, 200, 100);
+        const imageObject = addedImageObject.objects[0];
+        expect(addedImageObject.objects).toHaveLength(1);
+        expect(presentation.slides[0].objects).toHaveLength(0);
+        expect(imageObject).toBeDefined();
+        expect(imageObject.type).toBe('image');
+    });
+});
 
-  it('moveObject: перемещает объект, не мутируя исходный', () => {
-    const p = createPresentation('Test');
-    let slide = addTextObject(p.slides[0], 'Hello', 10, 10, 100, 50, 'Arial', 16, '#000');
-    const objId = slide.objects[0].id;
+describe('moveObject', () => {
+    it('Должен перемещать объект в новую позицию на слайде', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slideWithText = addTextObject(presentation.slides[0],
+            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
+        const textObject = slideWithText.objects[0];
+        const movedObject = moveObject(slideWithText, textObject.id, 50, 60);
+        expect(slideWithText.objects[0].x).toBe(10);
+        expect(slideWithText.objects[0].y).toBe(20);
+        expect(movedObject.objects[0].x).toBe(50);
+        expect(movedObject.objects[0].y).toBe(60);
+    });
+});
 
-    const newSlide = moveObject(slide, objId, 50, 60);
-    expect((newSlide.objects[0] as any).x).toBe(50);
-    expect((newSlide.objects[0] as any).y).toBe(60);
-    expect((slide.objects[0] as any).x).toBe(10);
-  });
+describe('resizeObject', () => {
+    it('Должен изменять размер объекта на слайде', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slideWithText = addTextObject(presentation.slides[0],
+            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
+        const textObject = slideWithText.objects[0];
+        const resizedObject = resizeObject(slideWithText, textObject.id, 250, 150);
+        expect(slideWithText.objects[0].width).toBe(200);
+        expect(slideWithText.objects[0].height).toBe(100);
+        expect(resizedObject.objects[0].width).toBe(250);
+        expect(resizedObject.objects[0].height).toBe(150);
+    });
+});
 
-  it('resizeObject: изменяет размер объекта, не мутируя исходный', () => {
-    const p = createPresentation('Test');
-    let slide = addImageObject(p.slides[0], 'img.png', 0, 0, 100, 100);
-    const objId = slide.objects[0].id;
+describe('updateTextObjectStyle', () => {
+    it('Должен обновлять стиль текстового объекта на слайде', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slideWithText = addTextObject(presentation.slides[0],
+            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
+        const textObject = slideWithText.objects[0];
+        const updatedObject = updateTextObjectStyle(slideWithText, textObject.id, 'Times New Roman', 18, 'blue');
+        if (slideWithText.objects[0].type !== 'text') {
+            throw new Error('Объект не является текстовым объектом');
+        }
+        expect(slideWithText.objects[0].fontFamily).toBe('Arial');
+        expect(slideWithText.objects[0].fontSize).toBe(16);
+        expect(slideWithText.objects[0].fontColor).toBe('black');
 
-    const newSlide = resizeObject(slide, objId, 200, 300);
-    expect((newSlide.objects[0] as any).width).toBe(200);
-    expect((newSlide.objects[0] as any).height).toBe(300);
-    expect((slide.objects[0] as any).width).toBe(100);
-  });
+        if (!updatedObject.objects[0] || updatedObject.objects[0].type !== 'text') {
+            throw new Error('Объект не найден или не является текстовым объектом');
+        }
+        expect(updatedObject.objects[0].fontFamily).toBe('Times New Roman');
+        expect(updatedObject.objects[0].fontSize).toBe(18);
+        expect(updatedObject.objects[0].fontColor).toBe('blue');
+    });
+});
 
-  it('updateTextObjectStyle: изменяет стиль текста, не мутируя исходный', () => {
-    const p = createPresentation('Test');
-    let slide = addTextObject(p.slides[0], 'Hello', 0, 0, 100, 50, 'Arial', 16, '#000');
-    const objId = slide.objects[0].id;
-
-    const newSlide = updateTextObjectStyle(slide, objId, 'Times New Roman', 24, '#ff0000');
-    const updatedObj = newSlide.objects[0] as any;
-    
-    expect(updatedObj.fontFamily).toBe('Times New Roman');
-    expect(updatedObj.fontSize).toBe(24);
-    expect(updatedObj.fontColor).toBe('#ff0000');
-    expect((slide.objects[0] as any).fontFamily).toBe('Arial');
-  });
-
-  it('removeObject: удаляет объект иммутабельно', () => {
-    const p = createPresentation('Test');
-    let slide = addTextObject(p.slides[0], 'Hello', 0, 0, 100, 50, 'Arial', 16, '#000');
-    const objId = slide.objects[0].id;
-
-    const newSlide = removeObject(slide, objId);
-    expect(newSlide.objects.length).toBe(0);
-    expect(slide.objects.length).toBe(1);
-  });
+describe('removeObject', () => {
+    it('Должен удалять объект со слайда', () => {
+        const presentation = createPresentation('Моя презентация');
+        const slideWithText = addTextObject(presentation.slides[0],
+            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
+        const textObject = slideWithText.objects[0];
+        expect(slideWithText.objects).toHaveLength(1);
+        const removedObject = removeObject(slideWithText, textObject.id);
+        expect(removedObject.objects).toHaveLength(0);
+        expect(slideWithText.objects).toHaveLength(1);
+    });
 });

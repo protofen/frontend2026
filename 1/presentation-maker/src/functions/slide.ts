@@ -1,101 +1,119 @@
+import { generateId } from '../index.js';
 import type { Presentation } from '../types/presentation.js';
-import type { Slide } from '../types/slide.js';
+import type { Slide, Background} from '../types/slide.js';
 
-function generateId(): string {
-  const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substring(2, 8);
-  return `${timestamp}-${randomPart}`;
-}
-
+//Работа со слайдами
 function addSlide(presentation: Presentation, slideName?: string): Presentation {
-  const newSlide: Slide = {
-    id: generateId(),
-    name: slideName || `Слайд ${presentation.slides.length + 1}`,
-    background: { type: 'none' },
-    objects: [],
-  };
-  return {
-    ...presentation,
-    slides: [...presentation.slides, newSlide],
-  };
+    const newSlide: Slide = {
+        id: generateId(),
+        name: slideName || `Слайд ${presentation.slides.length + 1}`,
+        background: { type: 'none' },
+        objects: [],
+    }
+    return {
+        ...presentation,
+        slides: [...presentation.slides, newSlide]
+    }
 }
 
 function removeSlides(presentation: Presentation, slideIds: string[]): Presentation {
-  const newSlides = presentation.slides.filter((s) => !slideIds.includes(s.id));
-  const newActiveSlideId =
-    newSlides.length > 0
-      ? newSlides.some((s) => s.id === presentation.activeSlideId)
-        ? presentation.activeSlideId
-        : newSlides[0].id
-      : '';
+    const remainingSlides = presentation.slides.filter((slide) => !slideIds.includes(slide.id));
 
-  return {
-    ...presentation,
-    slides: newSlides,
-    activeSlideId: newActiveSlideId,
-  };
+    const activeSlideWasDeleted = presentation.activeSlideId !== null && slideIds.includes(presentation.activeSlideId);
+
+    if (activeSlideWasDeleted) {
+        return {
+            ...presentation,
+            slides: remainingSlides,
+            activeSlideId: remainingSlides[0]?.id || null
+        };
+    } else {
+        return {
+            ...presentation,
+            slides: remainingSlides,
+            activeSlideId: presentation.activeSlideId
+        };
+    }
 }
 
 function moveSlide(presentation: Presentation, slideId: string, newIndex: number): Presentation {
-  const currentIndex = presentation.slides.findIndex((s) => s.id === slideId);
-  if (currentIndex === -1 || currentIndex === newIndex) return presentation;
-
-  const newSlides = [...presentation.slides];
-  const [movedSlide] = newSlides.splice(currentIndex, 1);
-  newSlides.splice(newIndex, 0, movedSlide);
-
-  return { ...presentation, slides: newSlides };
+    if (newIndex < 0 || newIndex >= (presentation.slides.length + 1)) {
+        throw new Error("Неправильный индекс для перемещения слайда");
+    }
+    const nessesarySlide = presentation.slides.find((slide) => slide.id === slideId);
+    if (!nessesarySlide) {
+        throw new Error("Слайд с таким id не найден");
+    }
+    const slides = [...presentation.slides];
+    const currentIndex = slides.indexOf(nessesarySlide);
+    slides.splice(currentIndex, 1);
+    slides.splice(newIndex, 0, nessesarySlide);
+    return {
+        ...presentation,
+        slides: slides
+    }
 }
 
 function setActiveSlide(presentation: Presentation, slideId: string): Presentation {
-  const slideExists = presentation.slides.some((s) => s.id === slideId);
-  if (!slideExists) return presentation;
-  
-  return { ...presentation, activeSlideId: slideId };
+    const activeSlide = presentation.slides.find((slide) => slide.id === slideId);
+    if (!activeSlide) {
+        throw new Error("Слайд с таким id не найден");
+    }
+    return {
+        ...presentation,
+        activeSlideId: slideId
+    }
 }
 
 function duplicateSlide(presentation: Presentation, slideId: string): Presentation {
-  const currentIndex = presentation.slides.findIndex((s) => s.id === slideId);
-  if (currentIndex === -1) return presentation;
-
-  const slideToDuplicate = presentation.slides[currentIndex];
-  const newSlide: Slide = {
-    ...slideToDuplicate,
-    id: generateId(),
-    name: `${slideToDuplicate.name} (копия)`,
-    objects: slideToDuplicate.objects.map((obj) => ({ ...obj, id: generateId() })),
-  };
-
-  const newSlides = [...presentation.slides];
-  newSlides.splice(currentIndex + 1, 0, newSlide);
-
-  return { ...presentation, slides: newSlides };
+    const slideToDuplicate = presentation.slides.find((slide) => slide.id === slideId);
+    if (!slideToDuplicate) {
+        throw new Error("Слайд с таким id не найден");
+    }
+    const newSlide: Slide = {
+        ...slideToDuplicate,
+        id: generateId(),
+        name: `${slideToDuplicate.name} (Копия)`
+    };
+    return {
+        ...presentation,
+        slides: [...presentation.slides, newSlide]
+    }
 }
 
+//Работа с фоном слайда
 function setSlideBackgroundColor(slide: Slide, color: string): Slide {
-  return { ...slide, background: { type: 'color', color } };
+    const newBackground: Background = { type: 'color', color: color };
+    return {
+        ...slide,
+        background: newBackground
+    }
 }
 
 function setSlideBackgroundImage(slide: Slide, imageUrl: string): Slide {
-  return { ...slide, background: { type: 'image', imageUrl } };
+    const newBackground: Background = { type: 'image', imageUrl: imageUrl };
+    return {
+        ...slide,
+        background: newBackground
+    }
 }
 
 function setSlideBackgroundGradient(slide: Slide, colors: string[], angle?: number): Slide {
-  return { ...slide, background: { type: 'gradient', colors, angle } };
+    const newBackground: Background = { type: 'gradient', colors: colors, angle: angle };
+    return {
+        ...slide,
+        background: newBackground
+    }
 }
 
 function clearSlideBackground(slide: Slide): Slide {
-  return { ...slide, background: { type: 'none' } };
+    const newBackground: Background = { type: 'none' };
+    return {
+        ...slide,
+        background: newBackground
+    }
 }
 
-export {
-  addSlide,
-  removeSlides,
-  moveSlide,
-  setActiveSlide,
-  duplicateSlide,
-  setSlideBackgroundColor,
-  setSlideBackgroundImage,
-  setSlideBackgroundGradient,
-  clearSlideBackground,
-};
+export { addSlide, removeSlides, moveSlide, setActiveSlide, duplicateSlide, 
+    setSlideBackgroundColor, setSlideBackgroundImage, setSlideBackgroundGradient, 
+    clearSlideBackground };

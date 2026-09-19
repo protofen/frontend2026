@@ -1,16 +1,17 @@
-import type { SlideObject } from './objects.js';
+import type { SlideObject } from "./object";
+//Создать Union типы данных Background и SlideObject
 
-type Background =
-  | { type: 'none' }
-  | { type: 'color'; color: string }
-  | { type: 'image'; imageUrl: string }
-  | { type: 'gradient'; colors: string[]; angle?: number };
+type Background = 
+    { type: 'none'} 
+    | { type: 'color'; color: string } 
+    | {type: 'image'; imageUrl: string } 
+    | {type: 'gradient'; colors: string[]; angle?: number};
 
 type Slide = {
-  id: string;
-  name: string;
-  background: Background;
-  objects: SlideObject[];
+    id: string;
+    name: string;
+    background: Background;
+    objects: SlideObject[];
 };
 
-export type { Background, Slide };
+export type { Slide, Background };

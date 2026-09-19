@@ -1,49 +1,37 @@
 import type { Presentation } from '../types/presentation.js';
-import type { Slide } from '../types/slide.js';
+import { generateId } from '../index.js';
 
-function generateId(): string {
-  const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substring(2, 8);
-  return `${timestamp}-${randomPart}`;
-}
-
-function createDefaultSlide(): Slide {
-  return {
-    id: generateId(),
-    name: 'Слайд 1',
-    background: { type: 'none' },
-    objects: [],
-  };
-}
-
+//Работы с презентацией
 function createPresentation(name: string): Presentation {
-  const defaultSlide = createDefaultSlide();
-  return {
-    id: generateId(),
-    name,
-    slides: [defaultSlide],
-    activeSlideId: defaultSlide.id,
-  };
+    const firstSlideId = generateId();
+    return {
+        id: generateId(),
+        name: name,
+        slides: [
+            {
+                id: firstSlideId,
+                name: "Первай слайд",
+                background: { type: 'none' },
+                objects: [],
+            }
+        ],
+        activeSlideId: firstSlideId,
+    };
 }
 
 function updatePresentationName(presentation: Presentation, name: string): Presentation {
-  return {
-    ...presentation,
-    name,
-  };
+    return {
+        ...presentation,
+        name: name,
+    };
 }
 
 function savePresentation(presentation: Presentation): string {
-  return JSON.stringify(presentation, null, 2);
+    return JSON.stringify(presentation)
 }
 
 function loadPresentation(json: string): Presentation {
-  return JSON.parse(json) as Presentation;
+    return JSON.parse(json) as Presentation
 }
 
-export {
-  createPresentation,
-  updatePresentationName,
-  savePresentation,
-  loadPresentation,
-};
+export { createPresentation, updatePresentationName, savePresentation, loadPresentation };
