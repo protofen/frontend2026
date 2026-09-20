@@ -2,7 +2,6 @@ import type { TextObject, ImageObject } from '../types/object.js';
 import type { Slide } from '../types/slide.js';
 import { generateId } from '../index.js';
 
-//Работа с объектами на слайде
 function addTextObject(slide: Slide, content: string, x: number, y: number, width: number, height: number, fontFamily: string, fontSize: number, fontColor: string): Slide {
     return {
         ...slide,
