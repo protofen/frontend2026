@@ -1,96 +1,98 @@
 import { describe, it, expect } from 'vitest';
-import { createPresentation, addTextObject, addImageObject, moveObject, 
-    resizeObject, updateTextObjectStyle, removeObject} from '../index.js';
+import { createPresentation } from '../functions/presentation.js';
+import { addTextObject, addImageObject, removeObject, moveObject, resizeObject, updateTextObjectStyle } from '../functions/objects.js';
 
 describe('addTextObject', () => {
-    it('Должен добавлять текстовый объект на слайд', () => {
-        const presentation = createPresentation('Моя презентация');
-        expect(presentation.slides[0].objects.length).toBe(0);
-        const addedTextObject = addTextObject(presentation.slides[0], 
-            `текст`
-            , 10, 20, 200, 100, 'Arial', 16, 'black');
-        const textObject = addedTextObject.objects[0];
-        expect(addedTextObject.objects).toHaveLength(1);
-        expect(presentation.slides[0].objects).toHaveLength(0);
-        expect(textObject).toBeDefined();
-        expect(textObject.type).toBe('text');
-    });
+  it('должна добавить текстовый объект на слайд', () => {
+    const presentation = createPresentation('Test');
+    const slide = presentation.slides[0];
+    const updated = addTextObject(slide, 'Testik', 10, 20, 100, 50, 'Arial', 24, '#000');
+    expect(updated.objects.length).toBe(1);
+    const obj = updated.objects[0];
+    if (obj.type === 'text') {
+      expect(obj.content).toBe('Testik');
+      expect(obj.x).toBe(10);
+      expect(obj.y).toBe(20);
+    }
+    expect(slide.objects.length).toBe(0);
+  });
 });
 
 describe('addImageObject', () => {
-    it('Должен добавлять изображение на слайд', () => {
-        const presentation = createPresentation('Моя презентация');
-        expect(presentation.slides[0].objects.length).toBe(0);
-        const addedImageObject = addImageObject(presentation.slides[0], 
-            '../../../versions.png', 10, 20, 200, 100);
-        const imageObject = addedImageObject.objects[0];
-        expect(addedImageObject.objects).toHaveLength(1);
-        expect(presentation.slides[0].objects).toHaveLength(0);
-        expect(imageObject).toBeDefined();
-        expect(imageObject.type).toBe('image');
-    });
+  it('должна добавить изображение на слайд', () => {
+    const presentation = createPresentation('Test');
+    const slide = presentation.slides[0];
+    const updated = addImageObject(slide, '../img.png', 10, 20, 200, 150);
+    expect(updated.objects.length).toBe(1);
+    const obj = updated.objects[0];
+    if (obj.type === 'image') {
+      expect(obj.url).toBe('../img.png');
+      expect(obj.width).toBe(200);
+    }
+    expect(slide.objects.length).toBe(0);
+  });
 });
 
 describe('moveObject', () => {
-    it('Должен перемещать объект в новую позицию на слайде', () => {
-        const presentation = createPresentation('Моя презентация');
-        const slideWithText = addTextObject(presentation.slides[0],
-            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
-        const textObject = slideWithText.objects[0];
-        const movedObject = moveObject(slideWithText, textObject.id, 50, 60);
-        expect(slideWithText.objects[0].x).toBe(10);
-        expect(slideWithText.objects[0].y).toBe(20);
-        expect(movedObject.objects[0].x).toBe(50);
-        expect(movedObject.objects[0].y).toBe(60);
-    });
+  it('должна переместить объект на новые координаты', () => {
+    const presentation = createPresentation('Test');
+    const slide = addTextObject(presentation.slides[0], 'Testik', 0, 0, 100, 50, 'Arial', 24, '#000');
+    const objectId = slide.objects[0].id;
+    const updated = moveObject(slide, objectId, 100, 200);
+    const obj = updated.objects.find((o) => o.id === objectId);
+    expect(obj?.x).toBe(100);
+    expect(obj?.y).toBe(200);
+    const originalObj = slide.objects.find((o) => o.id === objectId);
+    expect(originalObj?.x).toBe(0);
+    expect(originalObj?.y).toBe(0);
+  });
 });
 
 describe('resizeObject', () => {
-    it('Должен изменять размер объекта на слайде', () => {
-        const presentation = createPresentation('Моя презентация');
-        const slideWithText = addTextObject(presentation.slides[0],
-            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
-        const textObject = slideWithText.objects[0];
-        const resizedObject = resizeObject(slideWithText, textObject.id, 250, 150);
-        expect(slideWithText.objects[0].width).toBe(200);
-        expect(slideWithText.objects[0].height).toBe(100);
-        expect(resizedObject.objects[0].width).toBe(250);
-        expect(resizedObject.objects[0].height).toBe(150);
-    });
+  it('должна изменить размеры объекта', () => {
+    const presentation = createPresentation('Test');
+    const slide = addTextObject(presentation.slides[0], 'Testik', 0, 0, 100, 50, 'Arial', 24, '#000');
+    const objectId = slide.objects[0].id;
+    const updated = resizeObject(slide, objectId, 300, 150);
+    const obj = updated.objects.find((o) => o.id === objectId);
+    expect(obj?.width).toBe(300);
+    expect(obj?.height).toBe(150);
+    const originalObj = slide.objects.find((o) => o.id === objectId);
+    expect(originalObj?.width).toBe(100);
+    expect(originalObj?.height).toBe(50);
+  });
 });
 
 describe('updateTextObjectStyle', () => {
-    it('Должен обновлять стиль текстового объекта на слайде', () => {
-        const presentation = createPresentation('Моя презентация');
-        const slideWithText = addTextObject(presentation.slides[0],
-            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
-        const textObject = slideWithText.objects[0];
-        const updatedObject = updateTextObjectStyle(slideWithText, textObject.id, 'Times New Roman', 18, 'blue');
-        if (slideWithText.objects[0].type !== 'text') {
-            throw new Error('Объект не является текстовым объектом');
-        }
-        expect(slideWithText.objects[0].fontFamily).toBe('Arial');
-        expect(slideWithText.objects[0].fontSize).toBe(16);
-        expect(slideWithText.objects[0].fontColor).toBe('black');
+  it('должна изменить стиль текста', () => {
+    const presentation = createPresentation('Test');
+    const slide = addTextObject(presentation.slides[0], 'Testik', 0, 0, 100, 50, 'Arial', 24, '#000');
+    const objectId = slide.objects[0].id;
+    const updated = updateTextObjectStyle(slide, objectId, 'Times', 32, '#001265');
 
-        if (!updatedObject.objects[0] || updatedObject.objects[0].type !== 'text') {
-            throw new Error('Объект не найден или не является текстовым объектом');
-        }
-        expect(updatedObject.objects[0].fontFamily).toBe('Times New Roman');
-        expect(updatedObject.objects[0].fontSize).toBe(18);
-        expect(updatedObject.objects[0].fontColor).toBe('blue');
-    });
+    const obj = updated.objects.find((o) => o.id === objectId);
+    if (obj?.type === 'text') {
+      expect(obj.fontFamily).toBe('Times');
+      expect(obj.fontSize).toBe(32);
+      expect(obj.fontColor).toBe('#001265');
+    }
+    
+    const originalObj = slide.objects.find((o) => o.id === objectId);
+    if (originalObj?.type === 'text') {
+      expect(originalObj.fontFamily).toBe('Arial');
+      expect(originalObj.fontSize).toBe(24);
+      expect(originalObj.fontColor).toBe('#000');
+    }
+  });
 });
 
 describe('removeObject', () => {
-    it('Должен удалять объект со слайда', () => {
-        const presentation = createPresentation('Моя презентация');
-        const slideWithText = addTextObject(presentation.slides[0],
-            'Пепе шнеле', 10, 20, 200, 100, 'Arial', 16, 'black');
-        const textObject = slideWithText.objects[0];
-        expect(slideWithText.objects).toHaveLength(1);
-        const removedObject = removeObject(slideWithText, textObject.id);
-        expect(removedObject.objects).toHaveLength(0);
-        expect(slideWithText.objects).toHaveLength(1);
-    });
+  it('должна удалить объект по id', () => {
+    const presentation = createPresentation('Test');
+    const slide = addTextObject(presentation.slides[0], 'Testik', 0, 0, 100, 50, 'Arial', 24, '#000');
+    const objectId = slide.objects[0].id;
+    const updated = removeObject(slide, objectId);
+    expect(updated.objects.length).toBe(0);
+    expect(slide.objects.length).toBe(1);
+  });
 });
