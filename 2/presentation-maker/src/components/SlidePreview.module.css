@@ -1,0 +1,18 @@
+.slide {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.small {
+  width: 160px;
+  height: 120px;
+}
+
+.fullscreen {
+  width: 90vw;
+  height: 90vh;
+}

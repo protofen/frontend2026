@@ -1,0 +1,9 @@
+.text {
+  position: absolute;
+  white-space: pre-wrap;
+}
+
+.image {
+  position: absolute;
+  object-fit: contain;
+}
