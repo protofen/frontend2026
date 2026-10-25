@@ -1,12 +1,16 @@
+import type { CSSProperties, MouseEvent } from 'react';
 import type { Slide } from '../types/slide.js';
 import { SlideObject } from './SlideObject.js';
 import styles from './SlidePreview.module.css';
 
 type SlidePreviewProps = {
   slide: Slide;
+  selectedIds?: string[];
+  onObjectClick?: (objectId: string, event: MouseEvent<HTMLElement>) => void;
+  onContainerClick?: () => void;
 };
 
-function getBackgroundStyle(slide: Slide): React.CSSProperties {
+function getBackgroundStyle(slide: Slide): CSSProperties {
   const bg = slide.background;
 
   switch (bg.type) {
@@ -28,14 +32,25 @@ function getBackgroundStyle(slide: Slide): React.CSSProperties {
   }
 }
 
-function SlidePreview({ slide }: SlidePreviewProps) {
+function SlidePreview({
+  slide,
+  selectedIds = [],
+  onObjectClick,
+  onContainerClick,
+}: SlidePreviewProps) {
   return (
     <div
       className={styles.slide}
       style={getBackgroundStyle(slide)}
+      onClick={onContainerClick}
     >
       {slide.objects.map((obj) => (
-        <SlideObject key={obj.id} object={obj} />
+        <SlideObject
+          key={obj.id}
+          object={obj}
+          selected={selectedIds.includes(obj.id)}
+          onClick={onObjectClick ?? (() => {})}
+        />
       ))}
     </div>
   );

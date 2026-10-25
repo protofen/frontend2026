@@ -1,0 +1,14 @@
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.canvas {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  overflow: auto;
+}

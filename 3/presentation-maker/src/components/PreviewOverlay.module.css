@@ -1,0 +1,36 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 1000;
+}
+
+.content {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+}
+
+.counter {
+  font-size: 16px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}

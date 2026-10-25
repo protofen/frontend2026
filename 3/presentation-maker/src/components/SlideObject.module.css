@@ -1,0 +1,39 @@
+.wrapper {
+  position: absolute;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.text {
+  width: 100%;
+  height: 100%;
+  white-space: pre-wrap;
+  overflow: hidden;
+  user-select: none;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.selected {
+  outline: 2px solid #4caf50;
+  outline-offset: 0;
+}
+
+.handle {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background-color: #4caf50;
+  border: 1px solid #ffffff;
+  box-sizing: border-box;
+  cursor: nwse-resize;
+}

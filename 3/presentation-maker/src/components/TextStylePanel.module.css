@@ -1,0 +1,54 @@
+.panel {
+  width: 220px;
+  padding: 12px;
+  border-left: 1px solid #ccc;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.sizeRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.number {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.color {
+  width: 100%;
+  height: 32px;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
