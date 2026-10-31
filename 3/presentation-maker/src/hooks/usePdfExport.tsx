@@ -9,21 +9,6 @@ import { SlidePreview } from '../components/SlidePreview.js';
 const SLIDE_WIDTH = 800;
 const SLIDE_HEIGHT = 600;
 
-function waitForImages(container: HTMLElement): Promise<void> {
-  const images = Array.from(container.querySelectorAll('img'));
-  return Promise.all(
-    images.map((img) => {
-      if (img.complete && img.naturalWidth > 0) {
-        return Promise.resolve();
-      }
-      return new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-      });
-    })
-  ).then(() => undefined);
-}
-
 function usePdfExport() {
   const exportToPdf = useCallback(async (presentation: Presentation) => {
     if (presentation.slides.length === 0) return;
@@ -53,8 +38,6 @@ function usePdfExport() {
         flushSync(() => {
           root.render(<SlidePreview slide={slide} />);
         });
-
-        await waitForImages(container);
 
         const canvas = await html2canvas(container, {
           width: SLIDE_WIDTH,
